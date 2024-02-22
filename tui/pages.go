@@ -75,11 +75,9 @@ You can chekout my projects in "Projects" tab and my socials in "Links" tab.
 
 Here are some of my projects. Not much but I wanted to mention.
 
-## [GoShort](https://goshort.onrender.com/)
+## [GoShort](https://goshort.battos.dev)
 - A URL Shortener I made to learn Go
-- Live on Render: [GoShort](https://goshort.onrender.com/)
 - Source code hosted on GitHub: [github.com/batt0s/goshort](https://github.com/batt0s/goshort)
-
 ### What I have learned?
 - Using Go with net/http and [chi](https://github.com/go-chi/chi) to make RestAPIs
 - Using PostgreSQL with Go
@@ -88,12 +86,9 @@ Here are some of my projects. Not much but I wanted to mention.
 - Using GitHub actions
 
 
-
 ## [ea-quotes-api](https://ea-quotes-api.onrender.com/)
 - Unoffical [Evrim Ağacı Sözler](https://evrimagaci.org/sozler) API
-- Live on Render: [ea-quotes-api](https://ea-quotes-api.onrender.com/)
 - Source code hosted on GitHub: [github.com/batt0s/ea-quotes-api](https://github.com/batt0s/ea-quotes-api)
-
 ### What I have learned?
 - Using Python and FastAPI to make RestAPIs
 - Using BeautifulSoup and requests to get data from web sites
@@ -105,13 +100,11 @@ Here are some of my projects. Not much but I wanted to mention.
 		title: "Links",
 		desc:  "How to reach me",
 		content: `# Links
-My mail address: kerem.ullen@pm.me
-
-[My GitHub Profile](https://github.com/batt0s)
-
-[My LinkedIn Profile](https://www.linkedin.com/in/kerem-ullen)
-
-[My Website](https://batt0s.github.com)
+- Email: [kerem.ullen@pm.me](mailto:kerem.ullen@pm.me)
+- Website: [battos.dev](https://battos.dev) 
+- Github: [@batt0s](https://github.com/batt0s)
+- LinkedIn: [linkedin.com/in/kerem-ullen](https://linkedin.com/in/kerem-ullen)
+- YouTube: [@packagebattos](https://www.youtube.com/@packagebattos)
 `,
 	}
 
