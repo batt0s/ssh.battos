@@ -51,6 +51,8 @@ func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	m.list.Title = "Pages"
 	m.list.SetShowHelp(false)
 
+	m.page, _ = items[0].(page)
+
 	return m, []tea.ProgramOption{tea.WithAltScreen()}
 }
 
