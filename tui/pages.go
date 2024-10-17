@@ -75,9 +75,19 @@ You can chekout my projects in "Projects" tab and my socials in "Links" tab.
 
 Here are some of my projects. Not much but I wanted to mention.
 
+## [Rizzy](https://github.com/batt0s/rizzy)
+- Yet another interpreter made in Go
+
+### What I have learned?
+- Basics of designing an interpreted programming language
+- Implementing lexical analysis and parsing in Go
+- Handling different data types and operations in a language
+- Iterative improvements based on a foundational interpreter architecture
+
 ## [GoShort](https://goshort.battos.dev)
 - A URL Shortener I made to learn Go
 - Source code hosted on GitHub: [github.com/batt0s/goshort](https://github.com/batt0s/goshort)
+
 ### What I have learned?
 - Using Go with net/http and [chi](https://github.com/go-chi/chi) to make RestAPIs
 - Using PostgreSQL with Go
@@ -85,13 +95,6 @@ Here are some of my projects. Not much but I wanted to mention.
 - Consuming an API with Javascript
 - Using GitHub actions
 
-
-## [ea-quotes-api](https://ea-quotes-api.onrender.com/)
-- Unoffical [Evrim Ağacı Sözler](https://evrimagaci.org/sozler) API
-- Source code hosted on GitHub: [github.com/batt0s/ea-quotes-api](https://github.com/batt0s/ea-quotes-api)
-### What I have learned?
-- Using Python and FastAPI to make RestAPIs
-- Using BeautifulSoup and requests to get data from web sites
 `,
 	}
 
@@ -103,6 +106,7 @@ Here are some of my projects. Not much but I wanted to mention.
 - Email: [kerem.ullen@pm.me](mailto:kerem.ullen@pm.me)
 - Website: [battos.dev](https://battos.dev) 
 - Github: [@batt0s](https://github.com/batt0s)
+- Blog/Pages: [pages.battos.dev](https://pages.battos.dev) 
 - LinkedIn: [linkedin.com/in/kerem-ullen](https://linkedin.com/in/kerem-ullen)
 - YouTube: [@packagebattos](https://www.youtube.com/@packagebattos)
 `,
