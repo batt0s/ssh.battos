@@ -53,15 +53,9 @@ There could be problems with views.
 		title: "About",
 		desc:  "About me!",
 		content: `# About
-Hello, I'm Kerem, a software developer with experience in Python, specializing in server-side application development.
-I'm also familiar with JavaScript and Go.
+I am a Software Engineer and researcher driven by the intersection of advanced mathematics and robust system design. While my professional roots are in building scalable server-side applications and web services (Python, Go, JavaScript), my trajectory has evolved toward solving more fundamental challenges in theoretical computer science and algebraic structures.
 
-In my professional journey, I've actively participated in projects focusing on creating web services for artificial intelligence based applications.
-
-As a dedicated Linux enthusiast, I have a passion for experimenting with new programming languages and try open-source projects.
-Additionally, I find joy in exploring the mathematical foundations behind the functionality of software.
-
-My commitment to continuous self-improvement in the software world drives me to seek new and challenging projects, aiming to expand my skill set and gain valuable experience.
+Currently, my primary focus lies in Abstract Algebra, Coding Theory, and Modern Cryptography. I am particularly interested in the implementation of post-quantum systems.
 
 You can chekout my projects in "Projects" tab and my socials in "Links" tab.
 `,
@@ -75,26 +69,17 @@ You can chekout my projects in "Projects" tab and my socials in "Links" tab.
 
 Here are some of my projects. Not much but I wanted to mention.
 
+## [PQC-Share](https://github.com/batt0s/pqc-share) and [McEliece RS](https://github.com/batt0s/mceliece_rs)
+- I'm currently working on a cryptography project for my final year project. I'm trying to build a KEM-DEM system using Classic McEliece and AES256. You can follow the progress in GitHub.
+
 ## [Rizzy](https://github.com/batt0s/rizzy)
 - Yet another interpreter made in Go
-
-### What I have learned?
-- Basics of designing an interpreted programming language
-- Implementing lexical analysis and parsing in Go
-- Handling different data types and operations in a language
-- Iterative improvements based on a foundational interpreter architecture
 
 ## [GoShort](https://goshort.battos.dev)
 - A URL Shortener I made to learn Go
 - Source code hosted on GitHub: [github.com/batt0s/goshort](https://github.com/batt0s/goshort)
 
-### What I have learned?
-- Using Go with net/http and [chi](https://github.com/go-chi/chi) to make RestAPIs
-- Using PostgreSQL with Go
-- Writing Unit Tests for Go APIs
-- Consuming an API with Javascript
-- Using GitHub actions
-
+You can see more on [my GitHub Profile](https://github.com/batt0s).
 `,
 	}
 
@@ -103,7 +88,7 @@ Here are some of my projects. Not much but I wanted to mention.
 		title: "Links",
 		desc:  "How to reach me",
 		content: `# Links
-- Email: [kerem.ullen@pm.me](mailto:kerem.ullen@pm.me)
+- Email: [me@battos.dev](mailto:me@battos.dev) or [kerem.ullen@pm.me](mailto:kerem.ullen@pm.me)
 - Website: [battos.dev](https://battos.dev) 
 - Github: [@batt0s](https://github.com/batt0s)
 - Blog/Pages: [pages.battos.dev](https://pages.battos.dev) 
