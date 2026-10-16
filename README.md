@@ -16,8 +16,9 @@ ssh battos.dev -p 23234
   [Glamour](https://github.com/charmbracelet/glamour) Markdown.
 - **Responsive layout** — list and content sit side by side on wide terminals
   and stack on narrow ones (works on phone SSH clients).
-- **Adaptive rendering** — detects the client's terminal background and color
-  profile and renders the Markdown to match.
+- **Adaptive rendering** — detects the client's terminal background (without
+  blocking the UI) and color profile, and renders the Markdown to match.
+  Force it with `SSH_THEME=dark` or `SSH_THEME=light`.
 - **Scrollable content** — long pages are paged with `j`/`k`, `pgup`/`pgdn`.
 - **Hardened server** — ed25519 host key generated on first run, per-IP rate
   limiting, idle/max timeouts, and panic recovery.
@@ -57,11 +58,12 @@ On first run the server generates an ed25519 host key at `.ssh/id_ed25519`.
 
 ## Configuration
 
-| Variable       | Default              | Description             |
-| -------------- | -------------------- | ----------------------- |
-| `SSH_HOST`     | `0.0.0.0`            | address to bind         |
-| `SSH_PORT`     | `23234`              | port to listen on       |
-| `SSH_HOST_KEY` | `.ssh/id_ed25519`    | host key path           |
+| Variable       | Default              | Description                          |
+| -------------- | -------------------- | ------------------------------------ |
+| `SSH_HOST`     | `0.0.0.0`            | address to bind                      |
+| `SSH_PORT`     | `23234`              | port to listen on                    |
+| `SSH_HOST_KEY` | `.ssh/id_ed25519`    | host key path                        |
+| `SSH_THEME`    | auto                 | force `dark` or `light` Markdown     |
 
 ## Deployment
 

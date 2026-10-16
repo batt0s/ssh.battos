@@ -92,8 +92,29 @@ func TestTabTogglesFocus(t *testing.T) {
 	}
 }
 
+func TestThemeOverride(t *testing.T) {
+	t.Setenv("SSH_THEME", "light")
+
+	m := newTestModel(t)
+	if m.style != "light" {
+		t.Errorf("style = %q, want light", m.style)
+	}
+	if cmd := detectStyle(nil); cmd != nil {
+		t.Error("detectStyle should be a no-op without a renderer")
+	}
+}
+
+func TestBackgroundMsgUpdatesStyle(t *testing.T) {
+	m := newTestModel(t)
+
+	updated, _ := m.Update(backgroundMsg("light"))
+	if got := updated.(MainModel).style; got != "light" {
+		t.Errorf("after backgroundMsg, style = %q, want light", got)
+	}
+}
+
 func TestRenderMarkdown(t *testing.T) {
-	out := renderMarkdown(nil, "# Hello\n\nSome **bold** text.", 60)
+	out := renderMarkdown(nil, "dark", "# Hello\n\nSome **bold** text.", 60)
 	if out == "" {
 		t.Fatal("renderMarkdown returned empty output")
 	}

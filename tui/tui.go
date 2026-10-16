@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -41,20 +42,31 @@ type MainModel struct {
 	width     int
 	height    int
 	focus     focusArea
+	style     string
 	renderer  *lipgloss.Renderer
 	docStyle  lipgloss.Style
 	helpStyle lipgloss.Style
 }
+
+// backgroundMsg carries the style resolved from the client's terminal
+// background, delivered asynchronously so detection never blocks the UI.
+type backgroundMsg string
 
 // NewMainModel builds the root model. The renderer may be nil, in which case
 // lipgloss and glamour fall back to their global, auto-detected defaults.
 func NewMainModel(items []list.Item, r *lipgloss.Renderer) MainModel {
 	docStyle, helpStyle := stylesFor(r)
 
+	style := "dark"
+	if strings.EqualFold(os.Getenv("SSH_THEME"), "light") {
+		style = "light"
+	}
+
 	m := MainModel{
 		list:      list.New(items, list.NewDefaultDelegate(), 0, 0),
 		viewport:  viewport.New(0, 0),
 		page:      getSelectedPage("home"),
+		style:     style,
 		renderer:  r,
 		docStyle:  docStyle,
 		helpStyle: helpStyle,
@@ -85,13 +97,31 @@ func stylesFor(r *lipgloss.Renderer) (docStyle, helpStyle lipgloss.Style) {
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return nil
+	return detectStyle(m.renderer)
+}
+
+// detectStyle resolves the client's terminal background without blocking the
+// UI. When SSH_THEME is set, or there is no renderer, it is a no-op.
+func detectStyle(r *lipgloss.Renderer) tea.Cmd {
+	if r == nil || os.Getenv("SSH_THEME") != "" {
+		return nil
+	}
+	return func() tea.Msg {
+		if r.HasDarkBackground() {
+			return backgroundMsg("dark")
+		}
+		return backgroundMsg("light")
+	}
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case backgroundMsg:
+		m.style = string(msg)
+		m.renderContent()
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		m.layout()
@@ -190,7 +220,7 @@ func (m *MainModel) renderContent() {
 	if width <= 0 {
 		width = 80
 	}
-	m.viewport.SetContent(renderMarkdown(m.renderer, m.page.content, width))
+	m.viewport.SetContent(renderMarkdown(m.renderer, m.style, m.page.content, width))
 }
 
 func (m MainModel) View() string {
@@ -225,19 +255,18 @@ func (m MainModel) viewHelp() string {
 }
 
 // renderMarkdown renders Markdown for the client's terminal, adapting the
-// style to its background and color profile and wrapping to width.
-func renderMarkdown(r *lipgloss.Renderer, content string, width int) string {
+// style to its color profile and wrapping to width.
+func renderMarkdown(r *lipgloss.Renderer, style, content string, width int) string {
 	if width < 20 {
 		width = 80
 	}
+	if style == "" {
+		style = "dark"
+	}
 
-	style := "dark"
 	profile := termenv.TrueColor
 	if r != nil {
 		profile = r.ColorProfile()
-		if !r.HasDarkBackground() {
-			style = "light"
-		}
 	}
 
 	tr, err := glamour.NewTermRenderer(
