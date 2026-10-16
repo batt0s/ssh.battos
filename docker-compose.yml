@@ -1,0 +1,15 @@
+services:
+  ssh-battos:
+    build: .
+    image: ssh-battos
+    container_name: ssh-battos
+    restart: unless-stopped
+    ports:
+      # host:container — host port 22, app listens on 23234 in the container
+      - "22:23234"
+    volumes:
+      # persist the generated ed25519 host key across recreated containers
+      - ssh-battos-keys:/app/.ssh
+
+volumes:
+  ssh-battos-keys:

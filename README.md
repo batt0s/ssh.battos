@@ -69,10 +69,28 @@ On first run the server generates an ed25519 host key at `.ssh/id_ed25519`.
 
 ### Docker
 
+With [Docker Compose](docker-compose.yml) (recommended):
+
+```sh
+# first run
+docker compose up -d --build
+
+# update to the latest code later
+git pull
+docker compose up -d --build
+```
+
+Or with plain `docker`:
+
 ```sh
 docker build -t ssh-battos .
-docker run -d -p 23234:23234 -v ssh-battos-keys:/app/.ssh ssh-battos
+docker rm -f ssh-battos
+docker run -d --name ssh-battos --restart unless-stopped \
+  -p 22:23234 -v ssh-battos-keys:/app/.ssh ssh-battos
 ```
+
+The named volume keeps the generated host key across container recreations,
+so clients don't see a changed host key on every update.
 
 ### systemd
 
