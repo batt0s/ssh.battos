@@ -1,0 +1,29 @@
+[Unit]
+Description=ssh.battos - SSH portfolio TUI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ssh-battos
+Group=ssh-battos
+WorkingDirectory=/opt/ssh-battos
+Environment=SSH_HOST=0.0.0.0
+Environment=SSH_PORT=23234
+Environment=SSH_HOST_KEY=/opt/ssh-battos/.ssh/id_ed25519
+ExecStart=/opt/ssh-battos/ssh-battos
+Restart=on-failure
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/opt/ssh-battos/.ssh
+
+[Install]
+WantedBy=multi-user.target
