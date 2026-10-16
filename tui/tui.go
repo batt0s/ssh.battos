@@ -36,16 +36,17 @@ const (
 // MainModel is the root Bubble Tea model. It shows a list of pages on one side
 // and a scrollable, rendered Markdown page on the other.
 type MainModel struct {
-	list      list.Model
-	viewport  viewport.Model
-	page      page
-	width     int
-	height    int
-	focus     focusArea
-	style     string
-	renderer  *lipgloss.Renderer
-	docStyle  lipgloss.Style
-	helpStyle lipgloss.Style
+	list         list.Model
+	viewport     viewport.Model
+	page         page
+	width        int
+	height       int
+	focus        focusArea
+	style        string
+	renderer     *lipgloss.Renderer
+	docStyle     lipgloss.Style
+	helpStyle    lipgloss.Style
+	contentStyle lipgloss.Style
 }
 
 // backgroundMsg carries the style resolved from the client's terminal
@@ -57,19 +58,25 @@ type backgroundMsg string
 func NewMainModel(items []list.Item, r *lipgloss.Renderer) MainModel {
 	docStyle, helpStyle := stylesFor(r)
 
+	newStyle := lipgloss.NewStyle
+	if r != nil {
+		newStyle = r.NewStyle
+	}
+
 	style := "dark"
 	if strings.EqualFold(os.Getenv("SSH_THEME"), "light") {
 		style = "light"
 	}
 
 	m := MainModel{
-		list:      list.New(items, list.NewDefaultDelegate(), 0, 0),
-		viewport:  viewport.New(0, 0),
-		page:      getSelectedPage("home"),
-		style:     style,
-		renderer:  r,
-		docStyle:  docStyle,
-		helpStyle: helpStyle,
+		list:         list.New(items, list.NewDefaultDelegate(), 0, 0),
+		viewport:     viewport.New(0, 0),
+		page:         getSelectedPage("home"),
+		style:        style,
+		renderer:     r,
+		docStyle:     docStyle,
+		helpStyle:    helpStyle,
+		contentStyle: newStyle().MarginTop(1),
 	}
 	m.list.Title = "Pages"
 	m.list.SetShowHelp(false)
@@ -201,7 +208,7 @@ func (m *MainModel) layout() {
 		}
 		m.list.SetSize(max(10, sidebarW-docFrameW), max(3, bodyH-docFrameH))
 		m.viewport.Width = max(20, m.width-sidebarW)
-		m.viewport.Height = bodyH
+		m.viewport.Height = max(3, bodyH-1) // leave a blank line above the page
 	} else {
 		listH := bodyH / 3
 		if listH < 5 {
@@ -209,7 +216,7 @@ func (m *MainModel) layout() {
 		}
 		m.list.SetSize(max(10, m.width-docFrameW), max(3, listH-docFrameH))
 		m.viewport.Width = max(20, m.width)
-		m.viewport.Height = max(3, bodyH-listH)
+		m.viewport.Height = max(3, bodyH-listH-1) // leave a blank line above the page
 	}
 	m.renderContent()
 }
@@ -225,7 +232,7 @@ func (m *MainModel) renderContent() {
 
 func (m MainModel) View() string {
 	sidebar := m.sidebarStyle().Render(m.list.View())
-	content := m.viewport.View()
+	content := m.contentStyle.Render(m.viewport.View())
 
 	var body string
 	if m.width >= sideBySideMin {
