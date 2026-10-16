@@ -111,6 +111,26 @@ You can find all my projects and current work on my GitHub profile: [github.com/
 `,
 	}
 
+	now := page{
+		id:    "now",
+		title: "Now",
+		desc:  "What I'm up to right now",
+		content: `# Now
+
+*A snapshot of what I'm currently focused on.*
+
+- Finishing my B.Sc. in Mathematics & Computer Science.
+- Final year project: a constant-time Rust implementation of Classic McEliece ([mceliece_rs](https://github.com/batt0s/mceliece_rs)).
+- Exploring coding theory, abstract algebra, and post-quantum cryptography.
+- Writing and sharing notes on [pages.battos.dev](https://pages.battos.dev).
+
+## Recent posts
+- [Implementing PQC - Building Classic McEliece in Rust](https://pages.battos.dev/cryptography/2026/07/28/mceliece.html)
+- [Her Gün Cebir - QR Kodlar ve Reed-Solomon Kodları](https://pages.battos.dev/math/2026/03/21/qr-coding.html)
+- [Linux'a Giriş (Tarihçe, Distro'lar ve Kabuğa giriş)](https://pages.battos.dev/linux/2024/12/16/linux-i.html)
+`,
+	}
+
 	links := page{
 		id:    "links",
 		title: "Links",
@@ -128,6 +148,6 @@ You can find all my projects and current work on my GitHub profile: [github.com/
 `,
 	}
 
-	return []list.Item{home, about, links, projects}
+	return []list.Item{home, about, now, links, projects}
 
 }
