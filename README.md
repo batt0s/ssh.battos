@@ -5,7 +5,7 @@ An SSH portfolio you can connect to from any terminal — built with
 [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
 ```sh
-ssh battos.dev -p 23234
+ssh ssh.battos.dev
 ```
 
 ![demo](demo.gif)

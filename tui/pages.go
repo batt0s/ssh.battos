@@ -47,7 +47,7 @@ But you are here. You can change pages in the list.
 Software Developer, Linux Enthusiast, Math and Computer Science B.Sc. Student.
 Currently interested in Coding Theory and Post-Quantum Cryptography.
 
-> You can also connect directly with: ssh battos.dev -p 23234
+> You can also connect directly with: ssh ssh.battos.dev
 
 Please remember this is an experimental project of mine.
 There could be problems with views.
@@ -144,7 +144,7 @@ You can find all my projects and current work on my GitHub profile: [github.com/
 - Blog/Pages: [pages.battos.dev](https://pages.battos.dev)
 - LinkedIn: [linkedin.com/in/kerem-ullen](https://linkedin.com/in/kerem-ullen)
 - YouTube: [@packagebattos](https://www.youtube.com/@packagebattos)
-- SSH: ssh battos.dev -p 23234
+- SSH: ssh ssh.battos.dev
 `,
 	}
 
