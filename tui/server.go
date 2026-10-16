@@ -9,9 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
@@ -28,30 +26,11 @@ const (
 func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	pty, _, _ := s.Pty()
 
-	renderer := bubbletea.MakeRenderer(s)
-	docStyle := renderer.NewStyle().Margin(1, 2).Align(lipgloss.Left).
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("228")).
-		BorderTop(true).
-		BorderBottom(true).
-		BorderRight(true).
-		BorderLeft(true)
-	helpStyle := renderer.NewStyle().Foreground(lipgloss.Color("241"))
-
-	items := Pages()
-
-	m := MainModel{
-		list:      list.New(items, list.NewDefaultDelegate(), 0, 0),
-		docStyle:  docStyle,
-		helpStyle: helpStyle,
-		help:      helpStyle.Render("\n • up/k: previous • down/j: next • /: filter • enter: select • q/ctrl+c: quit\n"),
-		width:     pty.Window.Width,
-		height:    pty.Window.Height,
+	m := NewMainModel(Pages(), bubbletea.MakeRenderer(s))
+	if pty.Window.Width > 0 && pty.Window.Height > 0 {
+		m.width, m.height = pty.Window.Width, pty.Window.Height
+		m.layout()
 	}
-	m.list.Title = "Pages"
-	m.list.SetShowHelp(false)
-
-	m.page, _ = items[0].(page)
 
 	return m, []tea.ProgramOption{tea.WithAltScreen()}
 }

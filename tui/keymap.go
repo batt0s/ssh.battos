@@ -6,12 +6,13 @@ type keymap struct {
 	Enter key.Binding
 	Back  key.Binding
 	Quit  key.Binding
+	Focus key.Binding
 }
 
 var Keymap = keymap{
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "Select"),
+		key.WithHelp("enter", "open"),
 	),
 	Back: key.NewBinding(
 		key.WithKeys("esc"),
@@ -20,5 +21,9 @@ var Keymap = keymap{
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
 		key.WithHelp("q/ctrl+c", "quit"),
+	),
+	Focus: key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", "switch pane"),
 	),
 }
