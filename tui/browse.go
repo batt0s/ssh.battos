@@ -201,6 +201,7 @@ func (m *MainModel) enterPages() {
 	m.list.Title = "Pages"
 
 	items := Pages()
+	m.list.ResetFilter()
 	m.list.SetItems(items)
 
 	selected := 0
@@ -229,6 +230,7 @@ func (m *MainModel) enterRepos() {
 	m.treeErr = ""
 
 	m.list.Title = "Repositories"
+	m.list.ResetFilter()
 	m.list.SetItems(nil)
 	m.renderContent()
 	m.viewport.GotoTop()
@@ -268,6 +270,7 @@ func (m *MainModel) enterRepo(repo githubRepo) {
 	m.loading = true
 
 	m.list.Title = repo.Name
+	m.list.ResetFilter()
 	m.list.SetItems(nil)
 	m.renderContent()
 	m.viewport.GotoTop()
@@ -279,6 +282,7 @@ func (m *MainModel) setRepoItems() {
 		items = append(items, repoItem{repo: repo})
 	}
 	m.list.Title = "Repositories"
+	m.list.ResetFilter()
 	m.list.SetItems(items)
 	if len(items) > 0 {
 		m.list.Select(0)
@@ -308,6 +312,7 @@ func (m *MainModel) rebuildFileList(selectReadme bool) tea.Cmd {
 	if m.repoPath != "" {
 		m.list.Title = path.Base(m.repoPath)
 	}
+	m.list.ResetFilter()
 	m.list.SetItems(items)
 
 	m.fileData = nil

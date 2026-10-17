@@ -208,3 +208,46 @@ func TestGitHubBrowserFlow(t *testing.T) {
 		t.Errorf("after esc from repos, mode = %v title = %q, want viewPages/Pages", m.mode, m.list.Title)
 	}
 }
+
+func TestFilterResetsWhenOpeningRepository(t *testing.T) {
+	m := resize(t, newTestModel(t), 120, 40)
+	m.mode = viewRepos
+	m.repos = []githubRepo{{
+		Name:          "demo",
+		FullName:      "batt0s/demo",
+		DefaultBranch: "main",
+	}}
+	m.setRepoItems()
+
+	send := func(msg tea.Msg) MainModel {
+		updated, _ := m.Update(msg)
+		m = updated.(MainModel)
+		return m
+	}
+
+	// Apply a repository filter, then open the filtered repository.
+	send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("/")})
+	send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune("demo")})
+	send(tea.KeyMsg{Type: tea.KeyEnter})
+	if m.list.FilterState() != list.FilterApplied {
+		t.Fatalf("filter state = %v, want FilterApplied", m.list.FilterState())
+	}
+	send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Loading the tree must clear the old filter, otherwise README cannot be
+	// selected and the sidebar stays empty.
+	send(treeMsg{repo: "batt0s/demo", entries: []githubTreeEntry{
+		{Path: "README.md", Type: "blob", Size: 9},
+		{Path: "main.go", Type: "blob", Size: 20},
+	}})
+
+	if m.list.FilterState() != list.Unfiltered {
+		t.Errorf("filter state after opening repo = %v, want Unfiltered", m.list.FilterState())
+	}
+	if m.filePath != "README.md" {
+		t.Errorf("default file = %q, want README.md", m.filePath)
+	}
+	if got := len(m.list.VisibleItems()); got != 2 {
+		t.Errorf("visible file items = %d, want 2", got)
+	}
+}
