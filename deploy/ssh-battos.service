@@ -11,6 +11,8 @@ WorkingDirectory=/opt/ssh-battos
 Environment=SSH_HOST=0.0.0.0
 Environment=SSH_PORT=23234
 Environment=SSH_HOST_KEY=/opt/ssh-battos/.ssh/id_ed25519
+# Optional: GITHUB_TOKEN, GITHUB_USER, etc. Missing file is ignored.
+EnvironmentFile=-/etc/ssh-battos.env
 ExecStart=/opt/ssh-battos/ssh-battos
 Restart=on-failure
 RestartSec=3

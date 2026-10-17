@@ -22,6 +22,14 @@ const (
 	focusContent
 )
 
+type viewMode int
+
+const (
+	viewPages viewMode = iota
+	viewRepos
+	viewRepo
+)
+
 const (
 	// sideBySideMin is the terminal width at or above which the page list and
 	// the content are rendered next to each other. Below it they are stacked,
@@ -31,6 +39,9 @@ const (
 	// docStyle frame sizes: border (2) plus margins (4 horizontal, 2 vertical).
 	docFrameW = 6
 	docFrameH = 4
+
+	// paneHeaderH is the height of the title/subtitle block above the viewport.
+	paneHeaderH = 2
 )
 
 // MainModel is the root Bubble Tea model. It shows a list of pages on one side
@@ -47,6 +58,20 @@ type MainModel struct {
 	docStyle     lipgloss.Style
 	helpStyle    lipgloss.Style
 	contentStyle lipgloss.Style
+
+	// GitHub browser state. mode selects which list/inspector is visible.
+	mode     viewMode
+	gh       *githubClient
+	repos    []githubRepo
+	repo     githubRepo
+	tree     []githubTreeEntry
+	repoPath string
+	filePath string
+	fileData []byte
+	fileErr  string
+	loading  bool
+	reposErr string
+	treeErr  string
 }
 
 // backgroundMsg carries the style resolved from the client's terminal
@@ -77,6 +102,8 @@ func NewMainModel(items []list.Item, r *lipgloss.Renderer) MainModel {
 		docStyle:     docStyle,
 		helpStyle:    helpStyle,
 		contentStyle: newStyle().MarginTop(1),
+		mode:         viewPages,
+		gh:           defaultGitHubClient(),
 	}
 	m.list.Title = "Pages"
 	m.list.SetShowHelp(false)
@@ -129,6 +156,50 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.style = string(msg)
 		m.renderContent()
 		return m, nil
+	case reposMsg:
+		if m.mode != viewRepos {
+			return m, nil
+		}
+		m.loading = false
+		m.reposErr = ""
+		if msg.err != nil {
+			m.reposErr = msg.err.Error()
+			m.renderContent()
+			return m, nil
+		}
+		m.repos = msg.repos
+		m.setRepoItems()
+		m.renderContent()
+		return m, nil
+	case treeMsg:
+		if m.mode != viewRepo || msg.repo != repoName(m.repo) {
+			return m, nil
+		}
+		m.loading = false
+		m.treeErr = ""
+		if msg.err != nil {
+			m.treeErr = msg.err.Error()
+			m.renderContent()
+			return m, nil
+		}
+		m.tree = msg.entries
+		return m, m.rebuildFileList(true)
+	case fileMsg:
+		if m.mode != viewRepo || msg.repo != repoName(m.repo) || msg.path != m.filePath {
+			return m, nil
+		}
+		m.loading = false
+		m.fileErr = ""
+		if msg.err != nil {
+			m.fileErr = msg.err.Error()
+			m.fileData = nil
+			m.renderContent()
+			return m, nil
+		}
+		m.fileData = msg.data
+		m.renderContent()
+		m.viewport.GotoTop()
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		m.layout()
@@ -148,18 +219,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.toggleFocus()
 			return m, nil
 		case key.Matches(msg, Keymap.Back):
-			m.focus = focusList
-			return m, nil
+			return m.goBack()
 		case key.Matches(msg, Keymap.Enter):
-			if m.focus == focusList {
-				if selected, ok := m.list.SelectedItem().(page); ok {
-					m.page = selected
-					m.renderContent()
-					m.viewport.GotoTop()
-					m.focus = focusContent
-				}
-			}
-			return m, nil
+			return m.openSelected()
 		}
 	}
 
@@ -195,6 +257,9 @@ func (m *MainModel) layout() {
 		bodyH = 6
 	}
 
+	// The content column has a two-line header plus one blank margin line.
+	contentChrome := paneHeaderH + 1
+
 	if m.width >= sideBySideMin {
 		sidebarW := m.width / 3
 		if sidebarW < 28 {
@@ -208,7 +273,7 @@ func (m *MainModel) layout() {
 		}
 		m.list.SetSize(max(10, sidebarW-docFrameW), max(3, bodyH-docFrameH))
 		m.viewport.Width = max(20, m.width-sidebarW)
-		m.viewport.Height = max(3, bodyH-1) // leave a blank line above the page
+		m.viewport.Height = max(3, bodyH-contentChrome)
 	} else {
 		listH := bodyH / 3
 		if listH < 5 {
@@ -216,23 +281,34 @@ func (m *MainModel) layout() {
 		}
 		m.list.SetSize(max(10, m.width-docFrameW), max(3, listH-docFrameH))
 		m.viewport.Width = max(20, m.width)
-		m.viewport.Height = max(3, bodyH-listH-1) // leave a blank line above the page
+		m.viewport.Height = max(3, bodyH-listH-contentChrome)
 	}
 	m.renderContent()
 }
 
-// renderContent re-renders the current page at the viewport's width.
+// renderContent re-renders the current page, repository overview or file at
+// the viewport's width.
 func (m *MainModel) renderContent() {
 	width := m.viewport.Width
 	if width <= 0 {
 		width = 80
 	}
-	m.viewport.SetContent(renderMarkdown(m.renderer, m.style, m.page.content, width))
+
+	var content string
+	switch m.mode {
+	case viewRepos:
+		content = renderMarkdown(m.renderer, m.style, m.reposMarkdown(), width)
+	case viewRepo:
+		content = m.repoContent(width)
+	default:
+		content = renderMarkdown(m.renderer, m.style, m.page.content, width)
+	}
+	m.viewport.SetContent(content)
 }
 
 func (m MainModel) View() string {
 	sidebar := m.sidebarStyle().Render(m.list.View())
-	content := m.contentStyle.Render(m.viewport.View())
+	content := m.contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left, m.paneHeader(), m.viewport.View()))
 
 	var body string
 	if m.width >= sideBySideMin {
@@ -254,7 +330,7 @@ func (m MainModel) sidebarStyle() lipgloss.Style {
 
 // viewHelp returns the contextual key hints for the focused pane.
 func (m MainModel) viewHelp() string {
-	text := " ↑/k ↓/j: scroll • pgup/pgdn: page • tab: pages • esc: back • q: quit "
+	text := " ↑/k ↓/j: scroll • pgup/pgdn: page • tab: list • esc: back • q: quit "
 	if m.focus == focusList {
 		text = " ↑/k ↓/j: select • /: filter • enter: open • tab: content • q: quit "
 	}

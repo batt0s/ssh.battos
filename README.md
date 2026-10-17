@@ -20,6 +20,9 @@ ssh ssh.battos.dev
   blocking the UI) and color profile, and renders the Markdown to match.
   Force it with `SSH_THEME=dark` or `SSH_THEME=light`.
 - **Scrollable content** — long pages are paged with `j`/`k`, `pgup`/`pgdn`.
+- **GitHub browser** — open the GitHub page to browse your public repositories,
+  read READMEs, and explore files without leaving the terminal. Repo and file
+  data is fetched from the GitHub API and cached in memory.
 - **Hardened server** — ed25519 host key generated on first run, per-IP rate
   limiting, idle/max timeouts, and panic recovery.
 - **Configurable** — host, port and host key path via environment variables.
@@ -52,7 +55,7 @@ On first run the server generates an ed25519 host key at `.ssh/id_ed25519`.
 | `enter`           | open the selected page          |
 | `tab`             | switch between list and content |
 | `/`               | filter the page list            |
-| `esc`             | back to the list                |
+| `esc`             | back one level / to the list    |
 | `pgup`/`pgdn`     | page through content            |
 | `q` / `ctrl+c`    | quit                            |
 
@@ -64,6 +67,8 @@ On first run the server generates an ed25519 host key at `.ssh/id_ed25519`.
 | `SSH_PORT`     | `23234`              | port to listen on                    |
 | `SSH_HOST_KEY` | `.ssh/id_ed25519`    | host key path                        |
 | `SSH_THEME`    | auto                 | force `dark` or `light` Markdown     |
+| `GITHUB_USER`  | `batt0s`             | GitHub user whose public repos show  |
+| `GITHUB_TOKEN` | none                 | raises API limit from 60 to 5,000/hr |
 
 ## Deployment
 
@@ -91,6 +96,46 @@ docker run -d --name ssh-battos --restart unless-stopped \
 
 The named volume keeps the generated host key across container recreations,
 so clients don't see a changed host key on every update.
+
+### GitHub token
+
+Unauthenticated GitHub API access is limited to 60 requests/hour per server
+IP, shared by every visitor. A token raises that to 5,000/hour.
+
+Create a **fine-grained personal access token** with read-only access to public
+repositories (no write permissions are needed), then keep it in a local `.env`
+file on the server — **never commit it to git**.
+
+With Docker Compose, Compose reads `.env` automatically:
+
+```sh
+cp .env.example .env
+chmod 600 .env
+$EDITOR .env        # set GITHUB_TOKEN=github_pat_...
+
+docker compose up -d --build
+docker compose exec ssh-battos env | grep GITHUB_USER   # sanity check
+```
+
+For plain `docker run`, use `--env-file .env`:
+
+```sh
+docker run -d --name ssh-battos --restart unless-stopped \
+  --env-file .env -p 22:23234 -v ssh-battos-keys:/app/.ssh ssh-battos
+```
+
+For systemd, write the token to `/etc/ssh-battos.env` (root-owned, mode 600):
+
+```sh
+sudo install -m 600 /dev/null /etc/ssh-battos.env
+sudo tee /etc/ssh-battos.env >/dev/null <<'EOF'
+GITHUB_TOKEN=github_pat_...
+EOF
+sudo systemctl restart ssh-battos
+```
+
+The service already loads that file via `EnvironmentFile=`. The token is only
+used server-side and is never sent to SSH clients.
 
 ### systemd
 
@@ -121,6 +166,8 @@ tui/server.go        Wish SSH server, middleware and configuration
 tui/tui.go           root Bubble Tea model, layout and rendering
 tui/pages.go         page content
 tui/keymap.go        key bindings
+tui/github.go        cached GitHub API client
+tui/browse.go        repository/file browser state and rendering
 ```
 
 ### Adding a page

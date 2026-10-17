@@ -148,6 +148,17 @@ You can find all my projects and current work on my GitHub profile: [github.com/
 `,
 	}
 
-	return []list.Item{home, about, now, links, projects}
+	github := page{
+		id:    "github",
+		title: "GitHub",
+		desc:  "Browse my public repositories",
+		content: "# GitHub\n" +
+			"Browse my public repositories without leaving the terminal.\n\n" +
+			"Select **GitHub** and press `enter` to open the repository list. " +
+			"Pick a repository to read its README and explore its files.\n\n" +
+			"Press `esc` to walk back up: file → repository files → repository list → portfolio pages.\n",
+	}
+
+	return []list.Item{home, about, now, links, projects, github}
 
 }
